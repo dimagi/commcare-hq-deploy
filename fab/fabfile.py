@@ -123,8 +123,7 @@ class DeployMetadata(object):
         self._environment = environment
 
     def get_pr_numbers(self):
-        self._repo.compare_commits(self._last_tag, self._deploy_tag)
-        comparison = self._compare_commits()
+        comparison = self._repo.compare_commits(self._last_tag, self._deploy_tag)
         pr_numbers = map(
             lambda pr_message: int(re.search(r'Merge pull request #(\d+)', pr_message).group(1)),
             filter(
