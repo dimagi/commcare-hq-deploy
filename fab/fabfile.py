@@ -122,6 +122,21 @@ class DeployMetadata(object):
         self._code_branch = code_branch
         self._environment = environment
 
+    def get_pr_numbers(self):
+        self._repo.compare_commits(self._last_tag, self._deploy_tag)
+        comparison = self._compare_commits()
+        pr_numbers = map(
+            lambda pr_message: int(re.search(r'Merge pull request #(\d+)', pr_message).group(1)),
+            filter(
+                lambda message: message.startswith('Merge pull request'),
+                map(
+                    lambda repo_commit: repo_commit.commit.message,
+                    comparison.commits
+                )
+            )
+        )
+        return pr_numbers
+
     def tag_commit(self):
         pattern = ".*-{}-.*".format(re.escape(self._environment))
         for tag in self._repo.tags(self._max_tags):
