@@ -36,7 +36,7 @@
 10.209.162.131
 
 [elasticsearch]
-10.209.162.131
+10.209.162.131 elasticsearch_node_name=es0
 
 [shared_dir_host]
 10.209.162.131
