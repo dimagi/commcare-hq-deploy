@@ -30,7 +30,7 @@ hqtouch0-staging.internal-va.commcarehq.org
 hqdb1-staging.internal-va.commcarehq.org
 
 [elasticsearch]
-hqes0-staging.internal-va.commcarehq.org elasticsearch_node_name=hqes0-staging
+hqes0-staging.internal-va.commcarehq.org elasticsearch_node_name=hqes0-staging elasticsearch_zone_name=virginia
 
 [shared_dir_host]
 hqdb1-staging.internal-va.commcarehq.org
