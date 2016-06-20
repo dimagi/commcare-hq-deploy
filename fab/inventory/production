@@ -12,6 +12,9 @@ newrelic_app_name=django
 [postgresql]
 hqdb0.internal-va.commcarehq.org
 
+[postgresql:vars]
+datavol_device=/dev/xvdb
+
 [rabbitmq]
 hqdb0.internal-va.commcarehq.org
 
