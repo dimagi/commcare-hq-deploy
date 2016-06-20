@@ -603,7 +603,6 @@ def _deploy_without_asking():
 
         # hard update of manifest.json since we're about to force restart
         # all services
-        _execute_with_timing(update_manifest)
         _execute_with_timing(clean_releases)
     except PreindexNotFinished:
         mail_admins(
@@ -847,7 +846,6 @@ def force_update_static():
     _require_target()
     execute(staticfiles.collectstatic, env.code_current, env.virtualenv_current)
     execute(staticfiles.compress, env.code_current, env.virtualenv_current)
-    execute(update_manifest, use_current_release=True)
     silent_services_restart(use_current_release=True)
 
 
@@ -1032,32 +1030,6 @@ def flip_es_aliases():
     _require_target()
     with cd(env.code_root):
         sudo('%(virtualenv_root)s/bin/python manage.py ptop_es_manage --flip_all_aliases' % env)
-
-
-@roles(ROLES_DJANGO)
-@parallel
-def update_manifest(save=False, soft=False, use_current_release=False):
-    """
-    Puts the manifest.json file with the references to the compressed files
-    from the proxy machines to the web workers. This must be done on the WEB WORKER, since it
-    governs the actual static reference.
-
-    save=True saves the manifest.json file to redis, otherwise it grabs the
-    manifest.json file from redis and inserts it into the staticfiles dir.
-    """
-    withpath = env.code_root if not use_current_release else env.code_current
-    venv = env.virtualenv_root if not use_current_release else env.virtualenv_current
-
-    args = ''
-    if save:
-        args = ' save'
-    if soft:
-        args = ' soft'
-    cmd = 'update_manifest%s' % args
-    with cd(withpath):
-        sudo('{venv}/bin/python manage.py {cmd}'.format(venv=venv, cmd=cmd),
-            user=env.sudo_user
-        )
 
 
 def _rebuild_supervisor_conf_file(conf_command, filename, params=None):

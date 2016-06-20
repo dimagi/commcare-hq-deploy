@@ -57,4 +57,3 @@ def compress(code_root, virtualenv_root):
     with cd(code_root):
         sudo('{}/bin/python manage.py compress --force -v 0'.format(virtualenv_root))
         sudo('{}/bin/python manage.py purge_compressed_files'.format(virtualenv_root))
-    update_manifest(save=True, use_current_release=use_current_release)
