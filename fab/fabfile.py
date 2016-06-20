@@ -43,7 +43,9 @@ from fabric.colors import blue, red, yellow, magenta
 from fabric.context_managers import settings, cd, shell_env
 from fabric.contrib import files, console
 from fabric.operations import require
-from const import (
+from operations import db
+from .exceptions import PreindexNotFinished
+from .const import (
     ROLES_ALL_SRC,
     ROLES_ALL_SERVICES,
     ROLES_CELERY,
@@ -429,18 +431,11 @@ def preindex_views():
     `current` release and updates it.
     """
     setup_release()
-    _preindex_views()
-
-
-def _preindex_views():
-    with cd(env.code_root):
-        sudo((
-            'echo "%(virtualenv_root)s/bin/python '
-            '%(code_root)s/manage.py preindex_everything '
-            '8 %(user)s" --mail | at -t `date -d "5 seconds" '
-            '+%%m%%d%%H%%M.%%S`'
-        ) % env)
-        version_static()
+    db.preindex_views(
+        env.code_root,
+        env.virtualenv_root,
+        env.user
+    )
 
 
 @roles(ROLES_ALL_SRC)
@@ -579,31 +574,12 @@ def _deploy_without_asking():
     try:
         setup_release()
 
-        _execute_with_timing(_preindex_views)
-
-        max_wait = datetime.timedelta(minutes=5)
-        pause_length = datetime.timedelta(seconds=5)
-        start = datetime.datetime.utcnow()
-
-        @roles(ROLES_DB_ONLY)
-        def preindex_complete():
-            with settings(warn_only=True):
-                return sudo(
-                    '%(virtualenv_root)s/bin/python '
-                    '%(code_root)s/manage.py preindex_everything '
-                    '--check' % env,
-                    user=env.sudo_user,
-                ).succeeded
-
-        done = False
-        while not done and datetime.datetime.utcnow() - start < max_wait:
-            time.sleep(pause_length.seconds)
-            if preindex_complete():
-                done = True
-            pause_length *= 2
-
-        if not done:
-            raise PreindexNotFinished()
+        _execute_with_timing(
+            db.preindex_views,
+            env.code_root,
+            env.virtualenv_root,
+            env.user,
+        )
 
         # handle static files
         _execute_with_timing(version_static)
@@ -1399,7 +1375,3 @@ def _get_github():
         return login(
             token=GITHUB_APIKEY,
         )
-
-
-class PreindexNotFinished(Exception):
-    pass
