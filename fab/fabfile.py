@@ -43,7 +43,7 @@ from fabric.colors import blue, red, yellow, magenta
 from fabric.context_managers import settings, cd, shell_env
 from fabric.contrib import files, console
 from fabric.operations import require
-from operations import db
+from operations import db, staticfiles
 from .exceptions import PreindexNotFinished
 from .const import (
     ROLES_ALL_SRC,
@@ -582,11 +582,11 @@ def _deploy_without_asking():
         )
 
         # handle static files
-        _execute_with_timing(version_static)
-        _execute_with_timing(_bower_install)
-        _execute_with_timing(_npm_install)
-        _execute_with_timing(_do_collectstatic)
-        _execute_with_timing(_do_compress)
+        _execute_with_timing(staticfiles.version_static)
+        _execute_with_timing(staticfiles.bower_install, env.code_root)
+        _execute_with_timing(staticfiles.npm_install, env.code_root)
+        _execute_with_timing(staticfiles.collectstatic, env.code_root, env.virtualenv_root)
+        _execute_with_timing(staticfiles.compress, env.code_root, env.virtualenv_root)
 
         _set_supervisor_config()
 
@@ -845,8 +845,8 @@ def clean_releases(keep=3):
 @task
 def force_update_static():
     _require_target()
-    execute(_do_collectstatic, use_current_release=True)
-    execute(_do_compress, use_current_release=True)
+    execute(staticfiles.collectstatic, env.code_current, env.virtualenv_current)
+    execute(staticfiles.compress, env.code_current, env.virtualenv_current)
     execute(update_manifest, use_current_release=True)
     silent_services_restart(use_current_release=True)
 
@@ -1034,45 +1034,6 @@ def flip_es_aliases():
         sudo('%(virtualenv_root)s/bin/python manage.py ptop_es_manage --flip_all_aliases' % env)
 
 
-@parallel
-@roles(ROLES_STATIC)
-def _do_compress(use_current_release=False):
-    """Run Django Compressor after a code update"""
-    venv = env.virtualenv_root if not use_current_release else env.virtualenv_current
-    with cd(env.code_root if not use_current_release else env.code_current):
-        sudo('{}/bin/python manage.py compress --force -v 0'.format(venv))
-        sudo('{}/bin/python manage.py purge_compressed_files'.format(venv))
-    update_manifest(save=True, use_current_release=use_current_release)
-
-
-@parallel
-@roles(ROLES_STATIC)
-def _do_collectstatic(use_current_release=False):
-    """Collect static after a code update"""
-    venv = env.virtualenv_root if not use_current_release else env.virtualenv_current
-    with cd(env.code_root if not use_current_release else env.code_current):
-        sudo('{}/bin/python manage.py collectstatic --noinput -v 0'.format(venv))
-        sudo('{}/bin/python manage.py fix_less_imports_collectstatic'.format(venv))
-        sudo('{}/bin/python manage.py compilejsi18n'.format(venv))
-
-
-@parallel
-@roles(ROLES_STATIC)
-def _bower_install(use_current_release=False):
-    with cd(env.code_root if not use_current_release else env.code_current):
-        sudo('bower prune --production --config.interactive=false')
-        sudo('bower update --production --config.interactive=false')
-
-
-@parallel
-@roles(ROLES_DJANGO)
-def _npm_install():
-    with cd(env.code_root):
-        sudo('npm prune --production')
-        sudo('npm install --production')
-        sudo('npm update --production')
-
-
 @roles(ROLES_DJANGO)
 @parallel
 def update_manifest(save=False, soft=False, use_current_release=False):
@@ -1095,26 +1056,6 @@ def update_manifest(save=False, soft=False, use_current_release=False):
     cmd = 'update_manifest%s' % args
     with cd(withpath):
         sudo('{venv}/bin/python manage.py {cmd}'.format(venv=venv, cmd=cmd),
-            user=env.sudo_user
-        )
-
-
-@roles(set(ROLES_STATIC + ROLES_DJANGO))
-@parallel
-def version_static():
-    """
-    Put refs on all static references to prevent stale browser cache hits when things change.
-    This needs to be run on the WEB WORKER since the web worker governs the actual static
-    reference.
-
-    """
-
-    cmd = 'resource_static'
-    with cd(env.code_root):
-        sudo(
-            'rm -f tmp.sh resource_versions.py; {venv}/bin/python manage.py {cmd}'.format(
-                venv=env.virtualenv_root, cmd=cmd
-            ),
             user=env.sudo_user
         )
 
