@@ -642,7 +642,6 @@ def _deploy_without_asking():
 
         # hard update of manifest.json since we're about to force restart
         # all services
-        _execute_with_timing(update_manifest)
         _execute_with_timing(clean_releases)
     except PreindexNotFinished:
         mail_admins(
@@ -886,7 +885,6 @@ def force_update_static():
     _require_target()
     execute(_do_collectstatic, use_current_release=True)
     execute(_do_compress, use_current_release=True)
-    execute(update_manifest, use_current_release=True)
     silent_services_restart(use_current_release=True)
 
 
@@ -1081,7 +1079,6 @@ def _do_compress(use_current_release=False):
     with cd(env.code_root if not use_current_release else env.code_current):
         sudo('{}/bin/python manage.py compress --force -v 0'.format(venv))
         sudo('{}/bin/python manage.py purge_compressed_files'.format(venv))
-    update_manifest(save=True, use_current_release=use_current_release)
 
 
 @parallel
@@ -1110,32 +1107,6 @@ def _npm_install():
         sudo('npm prune --production')
         sudo('npm install --production')
         sudo('npm update --production')
-
-
-@roles(ROLES_DJANGO)
-@parallel
-def update_manifest(save=False, soft=False, use_current_release=False):
-    """
-    Puts the manifest.json file with the references to the compressed files
-    from the proxy machines to the web workers. This must be done on the WEB WORKER, since it
-    governs the actual static reference.
-
-    save=True saves the manifest.json file to redis, otherwise it grabs the
-    manifest.json file from redis and inserts it into the staticfiles dir.
-    """
-    withpath = env.code_root if not use_current_release else env.code_current
-    venv = env.virtualenv_root if not use_current_release else env.virtualenv_current
-
-    args = ''
-    if save:
-        args = ' save'
-    if soft:
-        args = ' soft'
-    cmd = 'update_manifest%s' % args
-    with cd(withpath):
-        sudo('{venv}/bin/python manage.py {cmd}'.format(venv=venv, cmd=cmd),
-            user=env.sudo_user
-        )
 
 
 @roles(set(ROLES_STATIC + ROLES_DJANGO))
