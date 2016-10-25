@@ -62,6 +62,7 @@ hqriak4.internal-va.commcarehq.org
 hqriak5.internal-va.commcarehq.org
 hqriak6.internal-va.commcarehq.org
 hqriak7.internal-va.commcarehq.org
+hqriak8.internal-va.commcarehq.org
 
 [riakcs:vars]
 datavol_device=/dev/xvdb
