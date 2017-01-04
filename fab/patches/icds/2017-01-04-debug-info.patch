@@ -1,0 +1,22 @@
+From 55359e30549e081275715b87caab11ffaa69f1e6 Mon Sep 17 00:00:00 2001
+From: Sravan Reddy <sravfeyn@gmail.com>
+Date: Wed, 4 Jan 2017 15:36:20 +0530
+Subject: [PATCH] log response
+
+---
+ custom/icds_reports/views.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/custom/icds_reports/views.py b/custom/icds_reports/views.py
+index 2cf9a9e..68d8d79 100644
+--- a/custom/icds_reports/views.py
++++ b/custom/icds_reports/views.py
+@@ -90,4 +90,4 @@ def get_tableau_access_token(tableau_user, client_ip):
+         else:
+             return r.text
+     else:
+-        raise TableauTokenException("Token request failed with code {}".format(r.status_code))
++        raise TableauTokenException("Token request failed with code {}, content {}".format(r.status_code, r.content))
+-- 
+2.8.0
+

@@ -1,0 +1,22 @@
+From 7621d352927a8cb3d9ec192e427e9fcdc712b786 Mon Sep 17 00:00:00 2001
+From: Sravan Reddy <sravfeyn@gmail.com>
+Date: Wed, 4 Jan 2017 14:19:45 +0530
+Subject: [PATCH] update tableau url
+
+---
+ custom/icds_reports/const.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/custom/icds_reports/const.py b/custom/icds_reports/const.py
+index d41d86d..431f2b5 100644
+--- a/custom/icds_reports/const.py
++++ b/custom/icds_reports/const.py
+@@ -1,4 +1,4 @@
+-TABLEAU_ROOT = "https://nic-tableau.commcarehq.org/"
++TABLEAU_ROOT = "https://reports.icds-cas.gov.in/"
+ TABLEU_TICKET_URL = TABLEAU_ROOT + "trusted/"
+ TABLEAU_VIEW_URL = TABLEAU_ROOT + "#/views/"
+ TABLEAU_USERNAME = "reportviewer"
+-- 
+2.8.0
+
