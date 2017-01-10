@@ -1,4 +1,4 @@
-From bf5387bc81cadfe2385c383959310ad078bd3d99 Mon Sep 17 00:00:00 2001
+From 317fe23ed7a1834a4cff904cab570e14a5099f8a Mon Sep 17 00:00:00 2001
 From: Ben Rudolph <brudolph@dimagi.com>
 Date: Tue, 3 Jan 2017 11:23:45 +0200
 Subject: [PATCH] locations for pull_users_and_groups
@@ -6,23 +6,19 @@ Subject: [PATCH] locations for pull_users_and_groups
 Fix limit_user_ids to limit both groups and locations
 
 get user_ids at location and descendants
+
+Move import
+
+do not use import
 ---
- corehq/apps/reports/filters/users.py | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ corehq/apps/reports/filters/users.py | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/corehq/apps/reports/filters/users.py b/corehq/apps/reports/filters/users.py
-index 328bcd8..39eaa40 100644
+index 328bcd8..0b08aea 100644
 --- a/corehq/apps/reports/filters/users.py
 +++ b/corehq/apps/reports/filters/users.py
-@@ -7,6 +7,7 @@ from corehq.apps.domain.models import Domain
- from corehq.apps.groups.models import Group
- from corehq.apps.reports.util import namedtupledict
- from corehq.apps.users.models import CommCareUser
-+from corehq.apps.es.users import user_ids_at_locations_and_descendants
- from corehq.util import remove_dups, flatten_list
- from dimagi.utils.decorators.memoized import memoized
- from corehq.apps.commtrack.models import SQLLocation
-@@ -315,13 +316,17 @@ class ExpandedMobileWorkerFilter(BaseMultipleOptionFilter):
+@@ -315,13 +315,17 @@ class ExpandedMobileWorkerFilter(BaseMultipleOptionFilter):
      @classmethod
      def pull_users_and_groups(cls, domain, mobile_user_and_group_slugs,
                                include_inactive=False, limit_user_ids=None):
@@ -34,7 +30,7 @@ index 328bcd8..39eaa40 100644
          users = []
  
 +        if location_ids:
-+            user_ids |= set(user_ids_at_locations_and_descendants(location_ids))
++            user_ids |= set(user_es.user_ids_at_locations_and_descendants(location_ids))
 +
          if limit_user_ids:
 -            user_ids = set(limit_user_ids).intersection(set(user_ids))
@@ -42,22 +38,6 @@ index 328bcd8..39eaa40 100644
  
          if user_ids or HQUserType.REGISTERED in user_types:
              users = util.get_all_users_by_domain(
-@@ -343,10 +348,14 @@ class ExpandedMobileWorkerFilter(BaseMultipleOptionFilter):
- 
-         user_dict = {}
-         for group in groups:
--            user_dict["%s|%s" % (group.name, group._id)] = util.get_all_users_by_domain(
-+            users_in_group = util.get_all_users_by_domain(
-                 group=group,
-                 simplified=True
-             )
-+            if limit_user_ids:
-+                users_in_group = filter(lambda user: user['user_id'] in limit_user_ids, users_in_group)
-+            user_dict["%s|%s" % (group.name, group._id)] = users_in_group
-+
-         users_in_groups = flatten_list(user_dict.values())
-         users_by_group = user_dict
-         combined_users = remove_dups(all_users + users_in_groups, "user_id")
 -- 
 2.2.1
 
