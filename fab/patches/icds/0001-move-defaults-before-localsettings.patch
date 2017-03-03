@@ -1,0 +1,39 @@
+From 3cac86650d4c287b34c3d0bae9c67b5d21428150 Mon Sep 17 00:00:00 2001
+From: Sravan Reddy <sravfeyn@gmail.com>
+Date: Fri, 3 Mar 2017 12:12:34 +0530
+Subject: [PATCH] move defaults before localsettings
+
+---
+ settings.py | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/settings.py b/settings.py
+index 868144b..eb6db7e 100755
+--- a/settings.py
++++ b/settings.py
+@@ -869,6 +869,11 @@ MOBILE_INTEGRATION_TEST_TOKEN = None
+ 
+ OVERRIDE_UCR_BACKEND = None
+ 
++# CommCare HQ - To indicate server
++COMMCARE_HQ_NAME = "CommCare HQ"
++# CommCare - To Indicate mobile
++COMMCARE_NAME = "CommCare"
++
+ ENTERPRISE_MODE = False
+ 
+ CUSTOM_LANDING_PAGE = False
+@@ -1410,10 +1415,6 @@ MESSAGE_TAGS = {
+ 
+ COMMCARE_USER_TERM = "Mobile Worker"
+ WEB_USER_TERM = "Web User"
+-# CommCare HQ - To indicate server
+-COMMCARE_HQ_NAME = "CommCare HQ"
+-# CommCare - To Indicate mobile
+-COMMCARE_NAME = "CommCare"
+ 
+ DEFAULT_CURRENCY = "USD"
+ DEFAULT_CURRENCY_SYMBOL = "$"
+-- 
+2.8.0
+
