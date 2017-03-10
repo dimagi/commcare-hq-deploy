@@ -31,21 +31,6 @@
 [formplayer1]
 10.162.36.231
 
-[riak10]
-hqriak10.internal-in.commcarehq.org
-
-[riak11]
-hqriak11.internal-in.commcarehq.org
-
-[riak12]
-hqriak12.internal-in.commcarehq.org
-
-[riak13]
-hqriak13.internal-in.commcarehq.org
-
-[riak14]
-hqriak14.internal-in.commcarehq.org
-
 [riak15]
 hqriak15.internal-in.commcarehq.org
 
