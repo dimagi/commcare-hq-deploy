@@ -136,7 +136,7 @@ production:
       saved_exports_queue:
         concurrency: 3
       background_queue:
-        concurrency: 4
+        concurrency: 8
 
 staging:
   environment: staging
