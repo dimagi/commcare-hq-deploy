@@ -71,6 +71,7 @@ def set_celery_supervisorconf():
         'background_queue':             ['supervisor_celery_background_queue.conf'],
         'saved_exports_queue':          ['supervisor_celery_saved_exports_queue.conf'],
         'ucr_queue':                    ['supervisor_celery_ucr_queue.conf'],
+        'ucr_indicator_queue':          ['supervisor_celery_ucr_indicator_queue.conf'],
         'email_queue':                  ['supervisor_celery_email_queue.conf'],
         'repeat_record_queue':          ['supervisor_celery_repeat_record_queue.conf'],
         'logistics_reminder_queue':     ['supervisor_celery_logistics_reminder_queue.conf'],
@@ -234,7 +235,8 @@ def _format_env(current_env, extra=None):
         'gunicorn_workers_static_factor',
         'flower_port',
         'jython_memory',
-        'formplayer_memory'
+        'formplayer_memory',
+        'newrelic_javaagent',
     ]
 
     host = current_env.get('host_string')
@@ -242,15 +244,18 @@ def _format_env(current_env, extra=None):
     newrelic_machines = [machine.name
                          for group in inventory_groups for machine in group.hosts
                          if 'newrelic_app_name' in group.vars]
+
+    ret['new_relic_command'] = ''
+    ret['supervisor_env_vars'] = {}
+
     if host in newrelic_machines:
         ret['new_relic_command'] = '%(virtualenv_root)s/bin/newrelic-admin run-program ' % env
-        ret['supervisor_env_vars'] = {
-            'NEW_RELIC_CONFIG_FILE': '%(root)s/newrelic.ini' % env,
-            'NEW_RELIC_ENVIRONMENT': '%(environment)s' % env
-        }
-    else:
-        ret['new_relic_command'] = ''
-        ret['supervisor_env_vars'] = []
+        ret['supervisor_env_vars']['NEW_RELIC_CONFIG_FILE'] = '%(root)s/newrelic.ini' % env
+        ret['supervisor_env_vars']['NEW_RELIC_ENVIRONMENT'] = '%(environment)s' % env
+
+    if env.http_proxy:
+        ret['supervisor_env_vars']['http_proxy'] = 'http://{}'.format(env.http_proxy)
+        ret['supervisor_env_vars']['https_proxy'] = 'https://{}'.format(env.http_proxy)
 
     for prop in important_props:
         ret[prop] = current_env.get(prop, '')
@@ -277,9 +282,18 @@ def start_pillows(current=False):
 
 @roles(ROLES_CELERY)
 @parallel
-def stop_celery_tasks():
-    with cd(env.code_root):
+def stop_celery_tasks(current=False):
+    code_root = env.code_current if current else env.code_root
+    with cd(code_root):
         sudo('scripts/supervisor-group-ctl stop celery')
+
+
+@roles(ROLES_CELERY)
+@parallel
+def start_celery_tasks(current=False):
+    code_root = env.code_current if current else env.code_root
+    with cd(code_root):
+        sudo('scripts/supervisor-group-ctl start celery')
 
 
 @roles(set(ROLES_ALL_SERVICES) - set(ROLES_DJANGO))

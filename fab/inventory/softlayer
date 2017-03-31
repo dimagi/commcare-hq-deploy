@@ -110,3 +110,6 @@ riak15
 
 [pg_standby:children]
 db0
+
+[control]
+10.162.36.196

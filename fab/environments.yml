@@ -16,10 +16,12 @@ base:
   formplayer_memory: "3584m"
   keepalive: 60
   http_proxy: null
+  newrelic_javaagent: False
 
 softlayer:
   environment: softlayer
   formplayer_memory: "7000m"
+  newrelic_javaagent: True
   celery_processes:
     '*':
       main:
@@ -43,6 +45,8 @@ softlayer:
         concurrency: 8
       ucr_queue:
         concurrency: 4
+      ucr_indicator_queue:
+        concurrency: 10
       email_queue:
         concurrency: 2
       repeat_record_queue:
@@ -54,8 +58,9 @@ softlayer:
 
 icds:
   environment: icds
-  http_proxy: 169.38.84.79:3128
+  http_proxy: 10.247.63.132:3128
   gunicorn_workers_factor: 2
+  formplayer_memory: "16000m"
   gunicorn_workers_static_factor: 1
   celery_processes:
     '*':
@@ -80,6 +85,8 @@ icds:
         concurrency: 8
       ucr_queue:
         concurrency: 4
+      ucr_indicator_queue:
+        concurrency: 4
       email_queue:
         concurrency: 2
       repeat_record_queue:
@@ -91,11 +98,10 @@ icds:
 
 production:
   environment: production
+  newrelic_javaagent: True
 
   celery_processes:
     hqcelery0:
-      background_queue:
-        concurrency: 4
       periodic:
         server_whitelist: hqcelery0.internal-va.commcarehq.org
         concurrency: 4
@@ -107,6 +113,8 @@ production:
         concurrency: 200
       ucr_queue:
         concurrency: 4
+      ucr_indicator_queue:
+        concurrency: 10
     hqcelery1:
       reminder_case_update_queue:
         concurrency: 4
@@ -128,7 +136,8 @@ production:
         concurrency: 8
       saved_exports_queue:
         concurrency: 3
-      
+      background_queue:
+        concurrency: 4
 
 staging:
   environment: staging
