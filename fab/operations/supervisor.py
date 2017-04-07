@@ -244,15 +244,21 @@ def _format_env(current_env, extra=None):
     newrelic_machines = [machine.name
                          for group in inventory_groups for machine in group.hosts
                          if 'newrelic_app_name' in group.vars]
+
+    ret['new_relic_command'] = ''
+    ret['supervisor_env_vars'] = {}
+
     if host in newrelic_machines:
         ret['new_relic_command'] = '%(virtualenv_root)s/bin/newrelic-admin run-program ' % env
-        ret['supervisor_env_vars'] = {
-            'NEW_RELIC_CONFIG_FILE': '%(root)s/newrelic.ini' % env,
-            'NEW_RELIC_ENVIRONMENT': '%(environment)s' % env
-        }
-    else:
-        ret['new_relic_command'] = ''
-        ret['supervisor_env_vars'] = []
+        ret['supervisor_env_vars']['NEW_RELIC_CONFIG_FILE'] = '%(root)s/newrelic.ini' % env
+        ret['supervisor_env_vars']['NEW_RELIC_ENVIRONMENT'] = '%(environment)s' % env
+
+    all_hosts = [host.name for host in InventoryParser(env.inventory).groups['all'].get_hosts()]
+
+    if env.http_proxy:
+        ret['supervisor_env_vars']['http_proxy'] = 'http://{}'.format(env.http_proxy)
+        ret['supervisor_env_vars']['https_proxy'] = 'https://{}'.format(env.http_proxy)
+        ret['supervisor_env_vars']['no_proxy'] = '{},{}'.format(','.join(all_hosts), env.get('additional_no_proxy_hosts',''))
 
     for prop in important_props:
         ret[prop] = current_env.get(prop, '')
@@ -279,9 +285,18 @@ def start_pillows(current=False):
 
 @roles(ROLES_CELERY)
 @parallel
-def stop_celery_tasks():
-    with cd(env.code_root):
+def stop_celery_tasks(current=False):
+    code_root = env.code_current if current else env.code_root
+    with cd(code_root):
         sudo('scripts/supervisor-group-ctl stop celery')
+
+
+@roles(ROLES_CELERY)
+@parallel
+def start_celery_tasks(current=False):
+    code_root = env.code_current if current else env.code_root
+    with cd(code_root):
+        sudo('scripts/supervisor-group-ctl start celery')
 
 
 @roles(set(ROLES_ALL_SERVICES) - set(ROLES_DJANGO))

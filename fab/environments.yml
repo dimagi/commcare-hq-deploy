@@ -58,8 +58,10 @@ softlayer:
 
 icds:
   environment: icds
-  http_proxy: 169.38.84.79:3128
+  http_proxy: 10.247.63.132:3128
+  additional_no_proxy_hosts: "relay.nic.in,smsgw.sms.gov.in,icds-cas.gov.in"
   gunicorn_workers_factor: 2
+  formplayer_memory: "16000m"
   gunicorn_workers_static_factor: 1
   celery_processes:
     '*':
@@ -85,7 +87,7 @@ icds:
       ucr_queue:
         concurrency: 4
       ucr_indicator_queue:
-        concurrency: 4
+        concurrency: 10
       email_queue:
         concurrency: 2
       repeat_record_queue:

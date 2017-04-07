@@ -261,7 +261,7 @@ def env_common():
     require('inventory', 'environment')
     servers = read_inventory_file(env.inventory)
 
-    env.is_monolith = len(servers['all']) == 1
+    env.is_monolith = len(set(servers['all']) - set(servers['control'])) < 2
 
     env.deploy_metadata = DeployMetadata(env.code_branch, env.environment)
     _setup_path()
@@ -784,6 +784,16 @@ def silent_services_restart(use_current_release=False):
 def set_supervisor_config():
     setup_release()
     supervisor.set_supervisor_config()
+
+
+@task
+def stop_celery():
+    execute(supervisor.stop_celery_tasks, True)
+
+
+@task
+def start_celery():
+    execute(supervisor.start_celery_tasks, True)
 
 
 @task
