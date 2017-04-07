@@ -39,6 +39,37 @@
 [control]
 10.247.24.20
 
+[pg2]
+10.247.24.22 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data' hot_standby_server='10.247.24.28'
+
+[pg3]
+10.247.24.23 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data' hot_standby_server='10.247.24.29'
+
+[web2]
+10.247.24.24 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+[web3]
+10.247.24.25 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+[web4]
+10.247.24.26 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+[web5]
+10.247.24.27 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+[es2]
+10.247.24.28 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data' hot_standby_master='10.247.24.22'
+
+[es3]
+10.247.24.29 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data' hot_standby_master='10.247.24.23'
+
+[pil1]
+10.247.24.30 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+[celery1]
+10.247.24.31 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
+
+
 [proxy:children]
 web0
 
@@ -48,11 +79,17 @@ web0
 [webworkers:children]
 web0
 web1
+web2
+web3
+web4
+web5
 kafka0
 
 [postgresql:children]
 pg0
 pg1
+pg2
+pg3
 celery0
 
 [couchdb:children]
@@ -72,12 +109,13 @@ kafka0
 
 [celery:children]
 celery0
+celery1
 
 [pillowtop:children]
 pil0
 
 [touchforms:children]
-pil0
+pil1
 
 [formplayer:children]
 pil0
@@ -85,6 +123,8 @@ pil0
 [elasticsearch:children]
 es0
 es1
+es2
+es3
 
 [shared_dir_host:children]
 kafka0
@@ -92,8 +132,12 @@ kafka0
 [riakcs:children]
 pg0
 pg1
+pg2
+pg3
 es0
 es1
+es2
+es3
 couch0
 
 [riakcs:vars]
@@ -105,6 +149,8 @@ couch0
 [pg_standby:children]
 es0
 es1
+es2
+es3
 
 [lvm:children]
 pg0
@@ -117,6 +163,16 @@ couch0
 celery0
 pil0
 kafka0
+pg2
+pg3
+es2
+es3
+web2
+web3
+web4
+web5
+pil1
+celery1
 
 [zabbix:children]
 kafka0
@@ -135,6 +191,16 @@ couch0
 celery0
 pil0
 kafka0
+pg2
+pg3
+es2
+es3
+web2
+web3
+web4
+web5
+pil1
+celery1
 
 [control:children]
 pil0
