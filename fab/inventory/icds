@@ -101,6 +101,7 @@ couch0
 [zookeeper:children]
 kafka0
 
+# Todo, add pil1, once we add support for multiple kafka machines
 [kafka:children]
 kafka0
 
@@ -111,6 +112,7 @@ kafka0
 celery0
 celery1
 
+# Todo, add pil1, once we add support for multiple pillow machines
 [pillowtop:children]
 pil0
 
