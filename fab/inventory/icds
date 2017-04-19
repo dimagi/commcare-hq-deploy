@@ -27,6 +27,9 @@
 [celery0]
 10.247.24.19 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
 
+[celery1]
+10.247.24.31
+
 [pil0]
 10.247.24.20 devices='["/dev/sdb"]' partitions='["/dev/sdb1"]' datavol_device='/dev/mapper/consolidated-data'
 
@@ -87,7 +90,7 @@ kafka0
 kafka0
 
 [celery:children]
-celery0
+celery1
 
 [pillowtop:children]
 pil0
@@ -153,6 +156,7 @@ es0
 es1
 couch0
 celery0
+celery1
 pil0
 kafka0
 web2
