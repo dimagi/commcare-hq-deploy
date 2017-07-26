@@ -47,3 +47,6 @@ hqriak01-staging.internal-va.commcarehq.org
 
 [control]
 control.internal-va.commcarehq.org
+
+[superset]
+superset.internal-va.commcarehq.org
