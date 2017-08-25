@@ -6,10 +6,12 @@ from fabric.api import roles, env, sudo
 from fabric.context_managers import cd
 from fabric.contrib import console
 from fabric.contrib import files
+from fabric.decorators import parallel
 
 from ..const import ROLES_FORMPLAYER, FORMPLAYER_BUILD_DIR, DATE_FMT
 
 
+@parallel
 @roles(ROLES_FORMPLAYER)
 def build_formplayer(use_current_release=False):
     """
