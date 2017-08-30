@@ -32,6 +32,9 @@ devices='["/dev/sdb"]'
 partitions=["/dev/sdb1"]
 datavol_device='/dev/mapper/consolidated-data'
 hot_standby_server='172.25.3.6'
+postgresql_max_connections=8000
+pgbouncer_max_connections=35000
+pgbouncer_default_pool=7900
 hostname='db0'
 
 [es0:vars]
