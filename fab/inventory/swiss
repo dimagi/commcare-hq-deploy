@@ -7,6 +7,9 @@ swiss.commcarehq.org
 [couchdb]
 swiss.commcarehq.org
 
+[couchdb2]
+swiss.commcarehq.org
+
 [postgresql]
 swiss.commcarehq.org
 
