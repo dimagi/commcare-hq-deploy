@@ -397,6 +397,10 @@ icds-new:
          concurrency: 1
       email_queue:
         concurrency: 2
+      reminder_case_update_queue:
+        pooling: gevent
+        concurrency: 5
+        num_workers: 5
     '10.247.164.41':
       ucr_queue:
         concurrency: 4
@@ -409,6 +413,10 @@ icds-new:
         concurrency: 5
         num_workers: 10
     '10.247.164.42':
+      reminder_case_update_queue:
+        pooling: gevent
+        concurrency: 5
+        num_workers: 10
       reminder_queue:
         pooling: gevent
         concurrency: 5
@@ -425,6 +433,10 @@ icds-new:
       #   pooling: gevent
       #   concurrency: 10
       #   num_workers: 4
+      reminder_case_update_queue:
+        pooling: gevent
+        concurrency: 5
+        num_workers: 10
       async_restore_queue:
         concurrency: 4
       ucr_indicator_queue:
