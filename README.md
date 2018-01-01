@@ -1,3 +1,12 @@
+# Deprecation notice
+
+**This repository is permanently deprecated as of Dec. 21, 2017.**
+
+It has been moved, with all of its commit history,
+to this subdirectory of the commcarehq-ansible repository:
+https://github.com/dimagi/commcarehq-ansible/tree/master/fab.
+
+
 ## Deploy Architecture
 
 ### Overview
